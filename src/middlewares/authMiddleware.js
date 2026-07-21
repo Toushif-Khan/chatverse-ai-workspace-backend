@@ -25,5 +25,8 @@ const authMiddleware = (req,res,next)=>{
                         message : "Invalid or expired token"
                     });
         }
-
+        
 }
+
+
+module.exports = authMiddleware;

@@ -59,6 +59,8 @@ const registerUser = async (req,res) =>{
 
 const loginUser = async(req, res)=>{
 
+   try{ 
+    
     const { email , password } = req.body;
 
     if(!email || !password){
@@ -96,7 +98,12 @@ const loginUser = async(req, res)=>{
                 message:"Login Successful",
                 token
             })
-        
+        } catch(error){
+        console.log(error);
+         return res.status(500).json({
+                message: "Internal error"
+            })
+        }
 
 
 }
