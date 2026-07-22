@@ -12,8 +12,8 @@ const createWorkspace = async(req,res)=>{
         }
 
       const newWorkspace = await Workspace.create({
-
-                owner : req.currentUser.id,  // user id sent by middleware attached to req object
+                
+                owner : req.currentUser.id,  // user id sent by middleware attached to req object              
                 name: name,
                 icon: icon
        });
@@ -39,4 +39,28 @@ const createWorkspace = async(req,res)=>{
 
 }
 
-module.exports = createWorkspace;
+
+
+
+
+    const getWorkspace = async(req,res)=>{
+
+   try {
+        const owner = req.currentUser.id;
+
+    const workspaces = await Workspace.find({owner})
+
+        return res.status(200).json({
+            message : "workspaces fetched successfully",
+            workspaces
+        });
+    }catch(error){
+            console.log(error);
+            return res.status(500).json({
+                message : "Internal error"
+            })
+    }
+
+    }
+
+module.exports = {createWorkspace , getWorkspace};

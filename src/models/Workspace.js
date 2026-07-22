@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const WorkspaceSchema = new mongoose.Schema({
     owner : {
-            type: mongoose.Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,  //stores objectId of User can use poplate to replace with User document
             ref:"User",
             required: true
           },
