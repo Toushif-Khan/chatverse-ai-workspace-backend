@@ -41,8 +41,6 @@ const createWorkspace = async(req,res)=>{
 
 
 
-
-
     const getWorkspace = async(req,res)=>{
 
    try {
@@ -137,6 +135,40 @@ const createWorkspace = async(req,res)=>{
                         message: "Internal Error",
                     })
             }
-    }
+        }
 
-module.exports = {createWorkspace , getWorkspace , getOneWorkspace , updateWorspace};
+     const deleteWorkspace = async(req, res)=>{
+               try {
+                const { id } = req.params;
+                
+                const matchWorkspace = await Workspace.findById(id);
+
+                if(!matchWorkspace){
+                    return res.status(404).json({
+                        message:"not found"
+                    })
+                };
+
+                    if(matchWorkspace.owner.toString() !== req.currentUser.id){
+                        return res.status(403).json({
+                            message:"Forbidden"
+                        })
+                    }
+
+                    await matchWorkspace.deleteOne();
+
+                    return res.status(200).json({
+                        message:"deleted succesfully"
+                    })
+
+                }catch(error){
+                    console.log(error);
+                    return res.status(500).json({
+                            message: "Internal error"
+                    })
+                }
+
+                }
+    
+
+module.exports = {createWorkspace , getWorkspace , getOneWorkspace , updateWorspace , deleteWorkspace };
