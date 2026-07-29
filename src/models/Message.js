@@ -11,7 +11,8 @@ const messageSchema = new mongoose.Schema({
 
             role : {
                 type: String,
-                enum : ["user" , "assistant"],         // User / AI
+                enum : ["user" , "assistant"],
+                default : "user",
                 required : true,
                 trim : true,
             },
