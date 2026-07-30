@@ -1,119 +1,220 @@
-const Message = require ("../models/Message");
+const Message = require("../models/Message");
 const Workspace = require("../models/Workspace");
-const Chat = require("../models/Chat")
+const Chat = require("../models/Chat");
 
-const createMsg = async(req,res)=>{
-   try{
-     const {content , role} = req.body;
-    
-    const{workspaceId , chatId} = req.params;
-    
-    if(!content || !role){
-        return res.status(400).json({
-            message : "required"
-        })
+const createMsg = async (req, res) => {
+  try {
+    const { content, role } = req.body;
+
+    const { workspaceId, chatId } = req.params;
+
+    if (!content) {
+      return res.status(400).json({
+        message: "required",
+      });
     }
 
     const matchWorkspace = await Workspace.findById(workspaceId); //(doesn't it conflict with owner)
-    if(!matchWorkspace){
-        return res.status(404).json({
-            message:"Not found"
-        })
+    if (!matchWorkspace) {
+      return res.status(404).json({
+        message: "Not found",
+      });
     }
 
-    if(matchWorkspace.owner.toString() !== req.currentUser.id){
-        return res.status(403).json({
-            message : "Forbidden"
-        })
+    if (matchWorkspace.owner.toString() !== req.currentUser.id) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
     }
 
     const matchChat = await Chat.findOne({
-             _id : chatId,
-        workspace: workspaceId,
+      _id: chatId,
+      workspace: workspaceId,
     });
-    
-    if(!matchChat){
-        return res.status(400).json({
-            message:"Chat not found"
-        })
+
+    if (!matchChat) {
+      return res.status(404).json({
+        message: "Chat not found",
+      });
     }
 
     const newMsg = await Message.create({
-        chat    : chatId,
-        content : content,
-    })
+      chat: chatId,
+      content: content,
+    });
 
-    const createdMsg ={
-        _id : newMsg._id,
-     content: newMsg.content,
-       role : newMsg.role
-    }
+    const createdMsg = {
+      _id: newMsg._id,
+      content: newMsg.content,
+      role: newMsg.role,
+    };
 
     return res.status(201).json({
-        message : "Message created Sucessfully",
-        createdMsg
-    })
+      message: "Message created Sucessfully",
+      createdMsg,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal error",
+    });
+  }
+};
 
-        }catch(error){
-            console.log(error);
-            return res.status(500).json({
-                message: "Internal error"
-            })
-        }
-}
+const getMsg = async (req, res) => {
+  try {
+    const { workspaceId, chatId } = req.params;
 
+    const matchWorkspace = await Workspace.findById(workspaceId); //first we check if workspace exist or not
+    if (!matchWorkspace) {
+      return res.status(404).json({
+        message: "not found",
+      });
+    }
 
-const getMsg = async(req,res)=>{
+    if (matchWorkspace.owner.toString() !== req.currentUser.id) {
+      // user and requested workspace are same or not
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
 
-   try { 
-    const {workspaceId , chatId} = req.params;
+    const matchChat = await Chat.findOne({
+      //it give surity that chat exist with required workspaceId
+      _id: chatId,
+      workspace: workspaceId,
+    });
+
+    if (!matchChat) {
+      return res.status(404).json({
+        message: "Not found",
+      });
+    }
+
+    const Msgs = await Message.find({
+      //and we return msgs with requested chatId
+      chat: chatId,
+    });
+
+    if (Msgs.length === 0) { //because findone or by id returns null find returns empty array[]
+      return res.status(200).json({
+        message: "No messages",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Fetched Sucessfully",
+      Msgs,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal Error",
+    });
+  }
+};
+
+const getOneMsg = async (req, res) => {
+  try {
+    const { chatId, workspaceId, messageId } = req.params;
 
     const matchWorkspace = await Workspace.findById(workspaceId);
-        if(!matchWorkspace){
-            return res.status(404).json({
-                message:"not found"
-            })
-        }
-        
+    if (!matchWorkspace) {
+      return res.status(404).json({
+        message: "not found",
+      });
+    }
 
-        if(matchWorkspace.owner.toString() !== req.currentUser.id ){
-                return res.status(403).json({
-                        message : "Forbidden"
-                })
+    if (matchWorkspace.owner.toString() !== req.currentUser.id) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
 
-        }
+    const matchChat = await Chat.findOne({
+      _id: chatId,
+      workspace: workspaceId,
+    });
 
-        const Msgs = await Message.find({
-            chat : chatId
-        })
+    if (!matchChat) {
+      return res.status(404).json({
+        message: "Not found",
+      });
+    }
 
-        if(!Msgs){
-            return res.status(404).json({
-                message: "Not found"
-            })
-        }
+    const Msg = await Message.findOne({
+      _id: messageId,
+      chat: chatId,
+    });
 
-            return res.status(201).json({
-                message : "Fetched Sucessfully",
-                Msgs
-            })
-        } catch(error){
-            console.log(error);
-        return res.status(500).json({
-            message: "Internal Error"
-        })
-        }
-}
+    if (!Msg) {
+      return res.status(404).json({
+        message: "not found",
+      });
+    }
 
-const getOneMsg = async(req,res)=>{
+    return res.status(200).json({
+      message: "Fetched Sucessfully",
+      Msg,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal error",
+    });
+  }
+};
 
-    const {chatId , workspaceId} = req.params;
+const deleteMsg = async (req, res) => {
+  try {
+    const { chatId, workspaceId, messageId } = req.params;
 
-    const matchWorkspace
+    const matchWorkspace = await Workspace.findById(workspaceId);
+    if (!matchWorkspace) {
+      return res.status(404).json({
+        message: "not found",
+      });
+    }
 
-}
+    if (matchWorkspace.owner.toString() !== req.currentUser.id) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
 
+    const matchChat = await Chat.findOne({
+      _id: chatId,
+      workspace: workspaceId,
+    });
 
+    if (!matchChat) {
+      return res.status(404).json({
+        message: "Not found",
+      });
+    }
 
+    const Msg = await Message.findOne({
+      _id: messageId,
+      chat: chatId,
+    });
 
-module.exports = {createMsg , getMsg}
+    if (!Msg) {
+      return res.status(404).json({
+        message: "not found",
+      });
+    }
+
+    await Msg.deleteOne();
+
+    return res.status(200).json({
+      message: "Deleted Sucessfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal error",
+    });
+  }
+};
+
+module.exports = { createMsg, getMsg, getOneMsg, deleteMsg };
