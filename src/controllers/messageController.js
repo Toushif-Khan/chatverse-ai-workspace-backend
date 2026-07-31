@@ -1,6 +1,7 @@
 const Message = require("../models/Message");
 const Workspace = require("../models/Workspace");
 const Chat = require("../models/Chat");
+const getAIreply = require("../services/aiDemo")
 
 const createMsg = async (req, res) => {
   try {
@@ -43,16 +44,32 @@ const createMsg = async (req, res) => {
       content: content,
     });
 
-    const createdMsg = {
+    const aiReply = await getAIreply(content);
+
+    const userMsg = {
       _id: newMsg._id,
       content: newMsg.content,
       role: newMsg.role,
     };
 
+    const AiReply = {
+      chat : chatId,
+      role: "assistant",
+      content: aiReply
+    }
+
+    const AiMsg = {
+      role: AiReply.role,
+      content: AiReply.content
+    }
+
+
     return res.status(201).json({
       message: "Message created Sucessfully",
-      createdMsg,
+      userMsg,
+      AiMsg
     });
+
   } catch (error) {
     console.log(error);
     return res.status(500).json({
