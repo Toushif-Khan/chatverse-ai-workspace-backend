@@ -39,7 +39,7 @@ const getWorkspace = async (req, res) => {
   try {
     const owner = req.currentUser.id;
 
-    const workspaces = await Workspace.find({ owner }); //Rule of thumb
+    const workspaces = await Workspace.find({ owner }); //Rule of thumb  //(give all the workspace whose owner is logged in owner)//
     // Listing resources (find): If your query already filters by the logged-in user (or another ownership field), an additional ownership check is usually unnecessary.
     // Workspace.find({ owner: req.currentUser.id })
     // Fetching one resource by ID (findById): You must verify ownership after fetching it, because findById only checks _id, not who owns it.
@@ -85,6 +85,7 @@ const getOneWorkspace = async (req, res) => {
 
 const updateWorspace = async (req, res) => {
   try {
+    console.log("UPDATE ROUTE HIT")
     const { id } = req.params;
 
     const { name, icon } = req.body;

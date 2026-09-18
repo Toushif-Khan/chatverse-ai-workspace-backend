@@ -5,7 +5,7 @@ const getAIreply = require("../services/aiDemo")
 
 const createMsg = async (req, res) => {
   try {
-    const { content, role } = req.body;
+    const { content } = req.body;
 
     const { workspaceId, chatId } = req.params;
 
@@ -52,23 +52,23 @@ const createMsg = async (req, res) => {
       role: newMsg.role,
     };
 
-    const AiReply = {
+    const AiReply = await Message.create({
       chat : chatId,
       role: "assistant",
       content: aiReply
-    }
+    })
 
     const AiMsg = {
       role: AiReply.role,
       content: AiReply.content
     }
 
-
     return res.status(201).json({
       message: "Message created Sucessfully",
       userMsg,
       AiMsg
     });
+
 
   } catch (error) {
     console.log(error);
@@ -133,7 +133,7 @@ const getMsg = async (req, res) => {
 
 const getOneMsg = async (req, res) => {
   try {
-    const { chatId, workspaceId, messageId } = req.params;
+    const { chatId, workspaceId , id} = req.params;
 
     const matchWorkspace = await Workspace.findById(workspaceId);
     if (!matchWorkspace) {
@@ -160,7 +160,7 @@ const getOneMsg = async (req, res) => {
     }
 
     const Msg = await Message.findOne({
-      _id: messageId,
+      _id:  id,
       chat: chatId,
     });
 
@@ -184,7 +184,7 @@ const getOneMsg = async (req, res) => {
 
 const deleteMsg = async (req, res) => {
   try {
-    const { chatId, workspaceId, messageId } = req.params;
+    const { chatId, workspaceId, id } = req.params;
 
     const matchWorkspace = await Workspace.findById(workspaceId);
     if (!matchWorkspace) {
@@ -211,7 +211,7 @@ const deleteMsg = async (req, res) => {
     }
 
     const Msg = await Message.findOne({
-      _id: messageId,
+      _id:  id,
       chat: chatId,
     });
 

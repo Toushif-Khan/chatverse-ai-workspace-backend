@@ -5,7 +5,8 @@ const createChat = async (req, res) => {
   try {
     const { title } = req.body;
     const { workspaceId } = req.params; // on clicking sends which workspace id acc. to the workspace clicked
-
+  
+          console.log(workspaceId);
     if (!title) {
       return res.status(400).json({
         message: "title required",
@@ -93,7 +94,7 @@ const getOneChat = async (req, res) => {
     const { id } = req.params;
     const { workspaceId } = req.params;
 
-    const matchWorkspace = await Workspace.findbById(workspaceId);
+    const matchWorkspace = await Workspace.findById(workspaceId);
 
     if (!matchWorkspace) {
       return res.status(404).json({
