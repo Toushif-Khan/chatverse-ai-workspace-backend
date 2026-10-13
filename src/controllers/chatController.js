@@ -6,7 +6,6 @@ const createChat = async (req, res) => {
     const { title } = req.body;
     const { workspaceId } = req.params; // on clicking sends which workspace id acc. to the workspace clicked
   
-          console.log(workspaceId);
     if (!title) {
       return res.status(400).json({
         message: "title required",

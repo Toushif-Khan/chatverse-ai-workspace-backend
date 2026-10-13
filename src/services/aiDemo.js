@@ -12,7 +12,7 @@ const response = await fetch(url + "/chat/completions",{
                 },
                 
                 body: JSON.stringify({
-                model: model,
+                model: model,                           // change the model in env nothing else if you want to switch models
                 messages: [
                         {
                                 role: "user",
@@ -24,7 +24,6 @@ const response = await fetch(url + "/chat/completions",{
         })
 
         const data = await response.json();
-        console.log(data);
         const aiReply = data.choices[0].message.content;
 
     return aiReply;    
